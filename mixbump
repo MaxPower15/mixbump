@@ -43,13 +43,13 @@ if mix_exs_path && File.exists?(mix_exs_path) do
     |> Enum.join("\n")
   )
 
-  cond do
-    command == "add" ->
+  case command do
+    "add" ->
       System.cmd "git", ~w[add #{mix_exs_path}]
-    command == "commit" ->
+    "commit" ->
       System.cmd "git", ~w[add #{mix_exs_path}]
       System.cmd "git", ~w[commit -m] ++ ["Version bump"]
-    true ->
+    _ ->
       # nothing extra to do
   end
 
