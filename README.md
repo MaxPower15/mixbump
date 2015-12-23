@@ -21,7 +21,7 @@ exist there for you, either change the script or add a symlink:
 
 Bump sub version without staging or committing:
 
-    mixbump /path/to/mix.exs
+    mixbump /path/to/mix.exs # trailing "mix.exs" can be omitted
 
 Bumb sub version and stage:
 
