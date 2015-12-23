@@ -28,7 +28,7 @@ Bumb sub version and stage:
     mixbump add /path/to/mix.exs
     mixbump a /path/to/mix.exs
 
-Bump suv version, stage, and commit
+Bump sub version, stage, and commit
 
     mixbump commit /path/to/mix.exs
     mixbump c /path/to/mix.exs
