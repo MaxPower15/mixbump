@@ -1,7 +1,7 @@
 # MixBump
 
 This is a simple elixir script to version bump a mix project. This exists
-because I often forget to update subversions and find it tedious to edit the
+because I often forget to update sub versions and find it tedious to edit the
 file by hand each time. Maybe you do too?
 
 ## Install
