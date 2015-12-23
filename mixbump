@@ -14,7 +14,7 @@ if length(System.argv) > 0 do
 
   # Allow specifying path without mix.exs if it contains it.
   if !Regex.match?(~r/mix.exs$/, mix_exs_path) && File.exists?("#{mix_exs_path}/mix.exs") do
-    mix_exs_path = "#{mix_exs_path}/mix.exs"
+    mix_exs_path = Path.join [mix_exs_path, "mix.exs"]
   end
 else
   mix_exs_path = nil
