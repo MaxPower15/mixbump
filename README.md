@@ -15,7 +15,7 @@ The script assumes that the elixir binary exists at `/usr/local/bin/elixir`,
 which is the default after installing with homebrew on OSX. If it doesn't
 exist there for you, either change the script or add a symlink:
 
-    sudo ln -s /my/actual/elixir /usr/local/bin/elixir
+    sudo ln -s `which elixir` /usr/local/bin/elixir
 
 ## Usage
 
