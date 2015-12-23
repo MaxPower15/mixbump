@@ -1,0 +1,61 @@
+#!/usr/local/bin/elixir
+
+# get mix.exs path
+if length(System.argv) > 0 do
+  if length(System.argv) == 1 do
+    # No command specified, just bump
+    [mix_exs_path | _] = System.argv
+    command = nil
+  else
+    [command, mix_exs_path | _] = System.argv
+    if command == "a", do: command = "add"
+    if command == "c", do: command = "commit"
+  end
+
+  # Allow specifying path without mix.exs if it contains it.
+  if !Regex.match?(~r/mix.exs$/, mix_exs_path) && File.exists?("#{mix_exs_path}/mix.exs") do
+    mix_exs_path = "#{mix_exs_path}/mix.exs"
+  end
+else
+  mix_exs_path = nil
+end
+
+if command && command != "add" && command != "commit" do
+  mix_exs_path = nil
+  IO.puts "Unrecognized command #{command}; \"add\" and \"commit\" are supported"
+end
+
+if mix_exs_path && File.exists?(mix_exs_path) do
+  # Update mix.exs in-place.
+  IO.puts "Bumping #{mix_exs_path}"
+  File.write mix_exs_path, (
+    File.read!(mix_exs_path)
+    |> String.split("\n")
+    |> (Enum.map fn(line) ->
+      Regex.replace(~r/version:\s*"(\d+)\.(\d+)\.(\d+)"/, line, fn(_, major, minor, sub) ->
+        {sub, _} = Integer.parse(sub)
+        old_version = "#{major}.#{minor}.#{sub}"
+        new_version = "#{major}.#{minor}.#{sub + 1}"
+        IO.puts "Bumping from #{old_version} to #{new_version}"
+        "version: \"#{major}.#{minor}.#{sub + 1}\""
+      end)
+    end)
+    |> Enum.join("\n")
+  )
+
+  cond do
+    command == "add" ->
+      System.cmd "git", ~w[add #{mix_exs_path}]
+    command == "commit" ->
+      System.cmd "git", ~w[add #{mix_exs_path}]
+      System.cmd "git", ~w[commit -m] ++ ["Version bump"]
+    true ->
+      # nothing extra to do
+  end
+
+else
+  IO.puts """
+  Please specify the path to a valid mix.exs file.
+  Usage: mixbump path/to/mix.exs
+  """
+end
