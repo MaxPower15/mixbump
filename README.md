@@ -6,7 +6,7 @@ file by hand each time. Maybe you do too?
 
 ## Install
 
-    git clone https://github.com/MaxPower15/mixbump
+    git clone https://github.com/MaxPower15/mixbump.git
     cd mixbump
     sudo mv mixbump /usr/bin/
     sudo chmod +x /usr/bin/mixbump
