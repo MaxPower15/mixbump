@@ -46,11 +46,16 @@ if mix_exs_path && File.exists?(mix_exs_path) do
   case command do
     "add" ->
       System.cmd "git", ~w[add mix.exs], cd: Path.dirname(mix_exs_path)
+      {output, _} = System.cmd "git", ~w[diff --cached], cd: Path.dirname(mix_exs_path)
+      IO.puts output
     "commit" ->
       System.cmd "git", ~w[add mix.exs], cd: Path.dirname(mix_exs_path)
       System.cmd "git", ~w[commit -m] ++ ["Version bump"], cd: Path.dirname(mix_exs_path)
+      {output, _} = System.cmd "git", ~w[diff HEAD~], cd: Path.dirname(mix_exs_path)
+      IO.puts output
     _ ->
-      # nothing extra to do
+      {output, _} = System.cmd "git", ~w[diff mix.exs], cd: Path.dirname(mix_exs_path)
+      IO.puts output
   end
 
 else
