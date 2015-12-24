@@ -23,7 +23,7 @@ Bump sub version without staging or committing:
 
     mixbump /path/to/mix.exs # trailing "mix.exs" can be omitted
 
-Bumb sub version and stage:
+Bump sub version and stage:
 
     mixbump add /path/to/mix.exs
     mixbump a /path/to/mix.exs
