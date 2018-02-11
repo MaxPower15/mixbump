@@ -1,31 +1,51 @@
 #!/usr/local/bin/elixir
 
 # get mix.exs path
+{command, mix_exs_path} = 
 if length(System.argv) > 0 do
+
   if length(System.argv) == 1 do
     # No command specified, just bump
-    [mix_exs_path | _] = System.argv
-    command = nil
+    [path | _] = System.argv
+    { nil, path}
   else
-    [command, mix_exs_path | _] = System.argv
-    if command == "a", do: command = "add"
-    if command == "c", do: command = "commit"
+    [command, path | _] = System.argv
+    command = 
+    case command do
+    "a" -> "add"
+    "c" -> "commit"
+    end
+    {command, path}
   end
 
-  # Allow specifying path without mix.exs if it contains it.
-  if !Regex.match?(~r/mix.exs$/, mix_exs_path) && File.exists?("#{mix_exs_path}/mix.exs") do
-    mix_exs_path = Path.join [mix_exs_path, "mix.exs"]
-  end
 else
-  mix_exs_path = nil
+  {nil, nil}
 end
 
+# default to current directory, if no path specified
+mix_exs_path = 
+if is_nil(mix_exs_path), do: ".", else: mix_exs_path
+
+# Allow specifying path without mix.exs if it contains it.
+mix_exs_path = 
+if !Regex.match?(~r/mix.exs$/, mix_exs_path) do
+  Path.join [mix_exs_path, "mix.exs"]
+else
+  mix_exs_path
+end
+
+ mix_exs_path = 
+ if File.exists?(mix_exs_path), do: mix_exs_path, else: nil
+
+mix_exs_path = 
 if command && command != "add" && command != "commit" do
-  mix_exs_path = nil
   IO.puts "Unrecognized command #{command}; \"add\" and \"commit\" are supported"
+  nil
+else
+  mix_exs_path
 end
 
-if mix_exs_path && File.exists?(mix_exs_path) do
+if !is_nil(mix_exs_path) do
   # Update mix.exs in-place.
   IO.puts "Bumping #{mix_exs_path}"
   File.write mix_exs_path, (
@@ -62,5 +82,7 @@ else
   IO.puts """
   Please specify the path to a valid mix.exs file.
   Usage: mixbump path/to/mix.exs
+         mixbump -a path/to/mix.exs (git add mix.exs)
+         mixbump -c path/to/mix.exs (git add mix.exs; git commit -m "Version bump")
   """
 end
