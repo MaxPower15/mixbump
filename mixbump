@@ -12,6 +12,7 @@ if length(System.argv) > 0 do
     [command, path | _] = System.argv
     command = 
     case command do
+    "d" -> "diff"
     "a" -> "add"
     "c" -> "commit"
     end
@@ -38,8 +39,8 @@ end
  if File.exists?(mix_exs_path), do: mix_exs_path, else: nil
 
 mix_exs_path = 
-if command && command != "add" && command != "commit" do
-  IO.puts "Unrecognized command #{command}; \"add\" and \"commit\" are supported"
+if command && command != "diff" && command != "add" && command != "commit" do
+  IO.puts "Unrecognized command #{command}; \"diff\", \"add\" and \"commit\" are supported"
   nil
 else
   mix_exs_path
@@ -47,7 +48,6 @@ end
 
 if !is_nil(mix_exs_path) do
   # Update mix.exs in-place.
-  IO.puts "Bumping #{mix_exs_path}"
   File.write mix_exs_path, (
     File.read!(mix_exs_path)
     |> String.split("\n")
@@ -56,7 +56,7 @@ if !is_nil(mix_exs_path) do
         {sub, _} = Integer.parse(sub)
         old_version = "#{major}.#{minor}.#{sub}"
         new_version = "#{major}.#{minor}.#{sub + 1}"
-        IO.puts "Bumping from #{old_version} to #{new_version}"
+        IO.puts "Bumping \"#{mix_exs_path}\", from #{old_version} to #{new_version}"
         "version: \"#{major}.#{minor}.#{sub + 1}\""
       end)
     end)
@@ -64,6 +64,9 @@ if !is_nil(mix_exs_path) do
   )
 
   case command do
+    "diff" ->
+      {output, _} = System.cmd "git", ~w[diff mix.exs], cd: Path.dirname(mix_exs_path)
+      IO.puts output
     "add" ->
       System.cmd "git", ~w[add mix.exs], cd: Path.dirname(mix_exs_path)
       {output, _} = System.cmd "git", ~w[diff --cached], cd: Path.dirname(mix_exs_path)
@@ -74,15 +77,15 @@ if !is_nil(mix_exs_path) do
       {output, _} = System.cmd "git", ~w[diff HEAD~], cd: Path.dirname(mix_exs_path)
       IO.puts output
     _ ->
-      {output, _} = System.cmd "git", ~w[diff mix.exs], cd: Path.dirname(mix_exs_path)
-      IO.puts output
+      nil
   end
 
 else
   IO.puts """
   Please specify the path to a valid mix.exs file.
   Usage: mixbump path/to/mix.exs
-         mixbump -a path/to/mix.exs (git add mix.exs)
-         mixbump -c path/to/mix.exs (git add mix.exs; git commit -m "Version bump")
+         mixbump d path/to/mix.exs (git diff)
+         mixbump a path/to/mix.exs (git add mix.exs)
+         mixbump c path/to/mix.exs (git add mix.exs; git commit -m "Version bump")
   """
 end
